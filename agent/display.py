@@ -82,7 +82,7 @@ class DemoDisplay:
             self._build_layout(),
             console=self.console,
             refresh_per_second=10,
-            transient=True,
+            transient=False,
         )
 
     def __enter__(self) -> "DemoDisplay":
