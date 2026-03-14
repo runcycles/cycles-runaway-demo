@@ -8,40 +8,105 @@ Same agent. Same bug. Two modes.
 
 A customer support bot drafts a response, evaluates its quality, and refines it in a loop until the quality score exceeds 8.0. The bug: the quality evaluator never returns above 6.9. Without a budget boundary, the agent loops forever — burning tokens with no exit condition. With RunCycles, the server returns `409 BUDGET_EXCEEDED` before the next call can proceed, and the agent stops cleanly.
 
+No real LLM is used. All calls are simulated at 50ms latency. The cost math is real.
+
 ## Run it
 
-Prerequisites: Docker Compose v2+, Python 3.10+
+Prerequisites: Docker Compose v2+, Python 3.10+, `curl`
 
 ```bash
 git clone https://github.com/runcycles/cycles-runaway-demo
 cd cycles-runaway-demo
-pip install -r agent/requirements.txt
+python3 -m pip install -r agent/requirements.txt
 ./demo.sh
 ```
+
+That's it. The script starts the Cycles stack (Redis + server + admin), provisions a tenant and budget, then runs both modes back to back.
 
 Run a single mode:
 
 ```bash
-./demo.sh unguarded    # without Cycles
-./demo.sh guarded      # with Cycles
-./demo.sh both         # both (default)
+./demo.sh unguarded    # without Cycles (~30s)
+./demo.sh guarded      # with Cycles (stops at $1.00)
+./demo.sh both         # both back to back (default)
 ```
 
-Stop the stack:
+Re-runs work without teardown — each run creates a fresh budget scope.
+
+Stop the stack when done:
 
 ```bash
 ./teardown.sh
 ```
 
+### First run notes
+
+The first run pulls three Docker images (~200MB total). You'll see Docker's pull progress. Subsequent runs start in seconds.
+
 ## What you'll see
 
 ### Without Cycles
 
-The call counter climbs steadily — draft, evaluate, refine, evaluate, refine — with no exit condition. Budget thresholds ($0.10, $0.50, $1.00) are crossed one by one. The projection panel shows the hourly cost rate extrapolated from the simulation. After 30 seconds the demo auto-terminates, but in production there would be no hard stop. The final panel reads: *"In production: no hard stop existed. Alert fires AFTER spend."*
+A live terminal display (no scroll flood) shows three panels updating in-place:
+
+- **Live Counter** — call count climbing, spend in dollars, current action with quality score
+- **Budget Thresholds** — the $0.10 threshold crossed in red; $0.50 and $1.00 showing "X% to go"
+- **Projection** — extrapolated cost rate: $/min, $/hr, $/day plus a real-LLM estimate (~$3.60/hr per stuck ticket)
+
+After 30 seconds the demo auto-terminates. The final red panel reads:
+> *"In production: no hard stop existed. Alert fires AFTER spend."*
+
+In 30s at simulation speed, the agent makes ~600 calls and spends ~$0.30. The projection panel shows what happens if you don't catch it — the hourly and daily rates are the scary numbers.
 
 ### With Cycles (budget: $1.00)
 
-The same counter, the same loop, the same bug. But when cumulative spend reaches $1.00, the Cycles server returns `409 BUDGET_EXCEEDED` on the next reservation attempt. The `@cycles` decorator raises `BudgetExceededError`, the agent catches it, and the loop ends cleanly. The final panel reads: *"Cycles stopped the agent BEFORE call N+1 could proceed."*
+The same counter, the same loop, the same bug. The display is identical — same panels, same structure. But when cumulative spend reaches $1.00 (after ~2,000 calls), the Cycles server returns `409 BUDGET_EXCEEDED` on the next reservation attempt. The `@cycles` decorator raises `BudgetExceededError`, the agent catches it, and the loop ends cleanly. The final green panel reads:
+> *"Cycles stopped the agent BEFORE call N+1 could proceed."*
+
+### Expected output
+
+```
+⚡ RunCycles — Runaway Agent Demo
+
+Starting Cycles stack...
+Stack is up.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  MODE 1: Without Cycles
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  [live panels update in-place for ~30s]
+
+╭──────────────── Final — UNGUARDED ─────────────────╮
+│ Result:   auto-stop after 30s                      │
+│ Calls:    ~600                                     │
+│ Spend:    ~$0.30                                   │
+│ Duration: 30.0s                                    │
+│                                                    │
+│ In production: no hard stop existed.               │
+│ Alert fires AFTER spend.                           │
+╰────────────────────────────────────────────────────╯
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  MODE 2: With Cycles (budget: $1.00)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  [live panels update in-place until budget hit]
+
+╭───────────────── Final — GUARDED ──────────────────╮
+│ Result:   BUDGET_EXCEEDED — Cycles returned 409    │
+│ Calls:    ~2,000                                   │
+│ Spend:    $1.00                                    │
+│ Duration: ~100s                                    │
+│                                                    │
+│ Cycles stopped the agent BEFORE call 2001          │
+│ could proceed.                                     │
+╰────────────────────────────────────────────────────╯
+
+Demo complete.
+  Swagger UI:   http://localhost:7878/swagger-ui.html
+  Stop stack:   ./teardown.sh
+```
 
 ## The code change
 

@@ -11,10 +11,35 @@ fi
 echo ""
 echo "⚡ RunCycles — Runaway Agent Demo"
 echo ""
+
+# Preflight checks
+if ! command -v docker &> /dev/null; then
+    echo "ERROR: docker is not installed. Install Docker Desktop or Docker Engine first." >&2
+    exit 1
+fi
+if ! docker info &> /dev/null; then
+    echo "ERROR: Docker daemon is not running. Start Docker and try again." >&2
+    exit 1
+fi
+if ! command -v python3 &> /dev/null; then
+    echo "ERROR: python3 is not installed. Install Python 3.10+ first." >&2
+    exit 1
+fi
+if ! python3 -c "import rich" &> /dev/null; then
+    echo "ERROR: 'rich' package not found. Run: python3 -m pip install -r agent/requirements.txt" >&2
+    exit 1
+fi
+if [[ "$MODE" == "guarded" || "$MODE" == "both" ]]; then
+    if ! python3 -c "import runcycles" &> /dev/null; then
+        echo "ERROR: 'runcycles' package not found. Run: python3 -m pip install -r agent/requirements.txt" >&2
+        exit 1
+    fi
+fi
+
 echo "Starting Cycles stack..."
-docker compose up -d
-bash scripts/wait_healthy.sh 7878
-bash scripts/wait_healthy.sh 7979
+docker compose up -d --pull=missing
+bash scripts/wait_healthy.sh 7878 "Cycles server"
+bash scripts/wait_healthy.sh 7979 "Cycles admin"
 echo "Stack is up."
 echo ""
 
