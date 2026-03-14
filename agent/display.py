@@ -15,6 +15,8 @@ from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
 
+from simulation import QUALITY_THRESHOLD
+
 
 # Budget thresholds to track (microcents, label)
 THRESHOLDS = [
@@ -24,6 +26,7 @@ THRESHOLDS = [
 ]
 
 BUDGET_MICROCENTS = 100_000_000  # $1.00
+MICROCENTS_PER_USD = 100_000_000
 
 
 @dataclass
@@ -56,7 +59,7 @@ class DemoState:
 
     @property
     def spend_usd(self) -> float:
-        return self.spend_microcents / 100_000_000
+        return self.spend_microcents / MICROCENTS_PER_USD
 
     @property
     def calls_per_second(self) -> float:
@@ -130,7 +133,7 @@ class DemoDisplay:
 
         action_text = s.last_action
         if s.last_score is not None:
-            action_text += f"  (score: {s.last_score:.1f} / {8.0:.1f})"
+            action_text += f"  (score: {s.last_score:.1f} / {QUALITY_THRESHOLD:.1f})"
         t.add_row("Last action", action_text)
 
         return Panel(t, title="[bold]Live Counter[/bold]", border_style=style)

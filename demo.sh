@@ -3,6 +3,11 @@ set -euo pipefail
 
 MODE="${1:-both}"
 
+if [[ "$MODE" != "unguarded" && "$MODE" != "guarded" && "$MODE" != "both" ]]; then
+    echo "Usage: $0 [unguarded|guarded|both]" >&2
+    exit 1
+fi
+
 echo ""
 echo "⚡ RunCycles — Runaway Agent Demo"
 echo ""
