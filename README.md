@@ -1,4 +1,4 @@
-# cycles-runaway-demo
+# Cycles Runaway Demo
 
 Shows the failure mode RunCycles prevents — and RunCycles preventing it.
 
