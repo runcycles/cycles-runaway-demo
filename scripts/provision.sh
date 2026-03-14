@@ -41,19 +41,9 @@ if [ -z "$API_KEY" ]; then
 fi
 echo "  API key: created" >&2
 
-# 2b. Patch the Redis lookup so the protocol server can find the key.
-#     The admin stores the lookup under a 14-char prefix (e.g. cyc_live_Z9Acz)
-#     but the server resolves with a 9-char prefix (cyc_live_).
-#     Bridge the gap by copying the key_id under the shorter prefix.
-SHORT_PREFIX="${API_KEY:0:9}"                      # e.g. "cyc_live_"
-LONG_PREFIX=$(echo "$API_KEY_RESPONSE" | grep -o '"key_prefix":"[^"]*"' | cut -d'"' -f4)
-KEY_ID=$(echo "$API_KEY_RESPONSE" | grep -o '"key_id":"[^"]*"' | cut -d'"' -f4)
-
-if [ -n "$SHORT_PREFIX" ] && [ -n "$KEY_ID" ]; then
-  docker exec cycles-runaway-demo-redis-1 redis-cli set "apikey:lookup:$SHORT_PREFIX" "$KEY_ID" > /dev/null 2>&1 || true
-fi
-
-# 3. Create budgets at every scope level the server may check ($1.00 = 100,000,000 microcents)
+# 3. Create budget at each scope level the SDK will check ($1.00 = 100,000,000 microcents).
+#    The protocol server walks from the agent's scope up to the tenant root, so every
+#    ancestor in the hierarchy needs an allocated budget.  Ignore 409 (already exists).
 for SCOPE in \
   "tenant:$TENANT_ID" \
   "tenant:$TENANT_ID/workspace:default" \

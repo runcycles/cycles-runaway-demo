@@ -12,5 +12,5 @@ Set PlaybackSpeed 2.0
 Type "./demo.sh guarded"
 Enter
 
-# Stack startup (~15s) + health checks (~7s) + provisioning (~2s) + demo (~30s) + buffer
-Sleep 65s
+# Stack startup (~20s) + guarded run (~76s) + buffer
+Sleep 110s

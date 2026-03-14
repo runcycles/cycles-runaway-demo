@@ -58,11 +58,11 @@ A live terminal display (no scroll flood) shows three panels updating in-place:
 After 30 seconds the demo auto-terminates. The final red panel reads:
 > *"In production: no hard stop existed. Alert fires AFTER spend."*
 
-In 30s at simulation speed, the agent makes ~600 calls and spends ~$0.30. The projection panel shows what happens if you don't catch it — the hourly and daily rates are the scary numbers.
+In 30s at simulation speed, the agent makes ~600 calls and spends ~$6.00. The projection panel shows what happens if you don't catch it — the hourly and daily rates are the scary numbers.
 
 ### With Cycles (budget: $1.00)
 
-The same counter, the same loop, the same bug. The display is identical — same panels, same structure. But when cumulative spend reaches $1.00 (after ~2,000 calls), the Cycles server returns `409 BUDGET_EXCEEDED` on the next reservation attempt. The `@cycles` decorator raises `BudgetExceededError`, the agent catches it, and the loop ends cleanly. The final green panel reads:
+The same counter, the same loop, the same bug. The display is identical — same panels, same structure. But when cumulative spend reaches $1.00 (after ~100 calls), the Cycles server returns `409 BUDGET_EXCEEDED` on the next reservation attempt. The `@cycles` decorator raises `BudgetExceededError`, the agent catches it, and the loop ends cleanly. The final green panel reads:
 > *"Cycles stopped the agent BEFORE call N+1 could proceed."*
 
 ### Expected output
@@ -82,7 +82,7 @@ Stack is up.
 ╭──────────────── Final — UNGUARDED ─────────────────╮
 │ Result:   auto-stop after 30s                      │
 │ Calls:    ~600                                     │
-│ Spend:    ~$0.30                                   │
+│ Spend:    ~$6.00                                   │
 │ Duration: 30.0s                                    │
 │                                                    │
 │ In production: no hard stop existed.               │
@@ -97,9 +97,9 @@ Stack is up.
 
 ╭───────────────── Final — GUARDED ──────────────────╮
 │ Result:   BUDGET_EXCEEDED — Cycles returned 409    │
-│ Calls:    ~2,000                                   │
+│ Calls:    ~100                                     │
 │ Spend:    $1.00                                    │
-│ Duration: ~100s                                    │
+│ Duration: ~60s                                     │
 │                                                    │
 │ Cycles stopped the agent BEFORE call 2001          │
 │ could proceed.                                     │
