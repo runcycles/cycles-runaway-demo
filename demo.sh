@@ -44,16 +44,25 @@ if ! command -v python3 &> /dev/null; then
     exit 1
 fi
 
+# Auto-activate the venv if it exists and we're not already in one.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [[ -z "${VIRTUAL_ENV:-}" && -f "$SCRIPT_DIR/.venv/bin/activate" ]]; then
+    # shellcheck disable=SC1091
+    source "$SCRIPT_DIR/.venv/bin/activate"
+fi
+
+VENV_HINT="  Run: python3 -m venv .venv && source .venv/bin/activate && pip install -r agent/requirements.txt"
+
 if ! python3 -c "import rich" &> /dev/null; then
     echo "ERROR: Python package 'rich' not installed." >&2
-    echo "  Run: python3 -m pip install -r agent/requirements.txt" >&2
+    echo "$VENV_HINT" >&2
     exit 1
 fi
 
 if [[ "$MODE" == "guarded" || "$MODE" == "both" ]]; then
     if ! python3 -c "import runcycles" &> /dev/null; then
         echo "ERROR: Python package 'runcycles' not installed." >&2
-        echo "  Run: python3 -m pip install -r agent/requirements.txt" >&2
+        echo "$VENV_HINT" >&2
         exit 1
     fi
 fi

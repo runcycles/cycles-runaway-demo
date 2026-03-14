@@ -17,7 +17,8 @@ Prerequisites: Docker Compose v2+, Python 3.10+, `curl`
 ```bash
 git clone https://github.com/runcycles/cycles-runaway-demo
 cd cycles-runaway-demo
-python3 -m pip install -r agent/requirements.txt
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r agent/requirements.txt
 ./demo.sh
 ```
 
@@ -44,14 +45,17 @@ Stop the stack when done:
 The demo runs on Windows 11 via WSL. Install [Docker Desktop for Windows](https://docs.docker.com/get-docker/) with the WSL 2 backend enabled (the default), then inside your WSL terminal:
 
 ```bash
-sudo apt update && sudo apt install -y python3 python3-pip curl
+sudo apt update && sudo apt install -y python3 python3-venv curl
 git clone https://github.com/runcycles/cycles-runaway-demo
 cd cycles-runaway-demo
-python3 -m pip install -r agent/requirements.txt
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r agent/requirements.txt
 ./demo.sh
 ```
 
 Docker Desktop shares the daemon between Windows and WSL automatically — no extra configuration needed.
+
+> **Note:** Ubuntu 23.04+ blocks system-wide pip installs (PEP 668). The venv step above avoids that.
 
 ### First run notes
 
