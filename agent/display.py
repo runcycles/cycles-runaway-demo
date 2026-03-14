@@ -174,7 +174,7 @@ class DemoDisplay:
         if s.mode == "UNGUARDED":
             t.add_row("", Text("$∞ No hard stop.", style="red bold"))
         else:
-            t.add_row("", Text("$1.00 Hard stop — BUDGET_EXCEEDED raised at this limit", style="green bold"))
+            t.add_row("", Text("$1.00 Hard stop — BUDGET_EXCEEDED raised at this limit", style="bold orange1"))
 
         return Panel(t, title="[bold]Budget Thresholds[/bold]", border_style=style)
 
@@ -219,7 +219,8 @@ class DemoDisplay:
         style = self._mode_style()
 
         lines: list[Text] = []
-        lines.append(Text(f"Result:   {s.stop_reason}", style=f"bold {style}"))
+        result_style = "bold orange1" if "BUDGET_EXCEEDED" in s.stop_reason else f"bold {style}"
+        lines.append(Text(f"Result:   {s.stop_reason}", style=result_style))
         lines.append(Text(f"Calls:    {s.calls:,}"))
         lines.append(Text(f"Spend:    ${s.spend_usd:.4f}"))
         lines.append(Text(f"Duration: {s.elapsed:.1f}s"))
@@ -233,7 +234,7 @@ class DemoDisplay:
         elif "BUDGET_EXCEEDED" in s.stop_reason:
             lines.append(Text(
                 f"Cycles stopped the agent BEFORE call {s.calls + 1} could proceed.",
-                style="green bold",
+                style="bold orange1",
             ))
         elif "error" in s.stop_reason.lower():
             lines.append(Text(
