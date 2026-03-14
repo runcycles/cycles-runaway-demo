@@ -31,7 +31,7 @@ Run a single mode:
 ./demo.sh both         # both back to back (default)
 ```
 
-Re-runs work without teardown — each run creates a fresh budget scope.
+Re-runs just work — the script resets the stack automatically to ensure a fresh budget.
 
 Stop the stack when done:
 

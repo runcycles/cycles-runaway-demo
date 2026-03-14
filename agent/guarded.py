@@ -10,8 +10,10 @@ Three decorators. One except. That is the entire integration.
 from __future__ import annotations
 
 import os
+import sys
 
 from runcycles import BudgetExceededError, CyclesClient, CyclesConfig, cycles, set_default_client
+from runcycles.exceptions import CyclesError
 
 from display import DemoDisplay, DemoState
 from simulation import (
@@ -23,6 +25,13 @@ TICKET = "My invoice for March is showing $847 but my contract says $720."
 
 
 def _setup():
+    missing = [v for v in ("CYCLES_BASE_URL", "CYCLES_API_KEY", "CYCLES_TENANT") if v not in os.environ]
+    if missing:
+        print(f"ERROR: Missing environment variables: {', '.join(missing)}", file=sys.stderr)
+        print("  These are set automatically by demo.sh.", file=sys.stderr)
+        print("  Run the demo with: ./demo.sh guarded", file=sys.stderr)
+        sys.exit(1)
+
     config = CyclesConfig(
         base_url=os.environ["CYCLES_BASE_URL"],
         api_key=os.environ["CYCLES_API_KEY"],
@@ -50,6 +59,7 @@ def refine_response(draft: str, score: float) -> str:
 def run() -> None:
     _setup()
     state = DemoState(mode="GUARDED", ticket=f"#4782 — {TICKET[:48]}...")
+    exit_error: str | None = None
 
     with DemoDisplay(state) as display:
         try:
@@ -85,6 +95,31 @@ def run() -> None:
             state.stop_reason = "BUDGET_EXCEEDED — Cycles server returned 409"
             state.last_action = "POST /v1/reservations → 409 BUDGET_EXCEEDED\n    BudgetExceededError raised — agent stopped cleanly"
             display.refresh()
+
+        except CyclesError as e:
+            state.stopped = True
+            err_str = str(e)
+            state.last_action = f"ERROR: {err_str}"
+            display.refresh()
+
+            if "Connection refused" in err_str or "timed out" in err_str.lower():
+                state.stop_reason = f"connection error — {err_str}"
+                exit_error = (
+                    f"\nERROR: Cannot reach Cycles server at {os.environ['CYCLES_BASE_URL']}\n"
+                    f"  Is the stack running?  docker compose ps\n"
+                    f"  Check server logs:     docker compose logs cycles-server"
+                )
+            else:
+                state.stop_reason = f"unexpected error — {err_str}"
+                exit_error = (
+                    f"\nERROR: Cycles error: {err_str}\n"
+                    f"  Check server logs: docker compose logs cycles-server"
+                )
+
+    # Print error AFTER the final panel (display.__exit__ already printed it)
+    if exit_error:
+        print(exit_error, file=sys.stderr)
+        sys.exit(1)
 
 
 if __name__ == "__main__":

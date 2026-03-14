@@ -90,6 +90,10 @@ class DemoDisplay:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb) -> None:
+        # If exiting due to an unhandled exception, record it
+        if exc_type is not None and not self.state.stopped:
+            self.state.stopped = True
+            self.state.stop_reason = f"unexpected error: {exc_val}"
         # Render final summary before exiting Live
         self.live.update(self._build_layout())
         self.live.__exit__(exc_type, exc_val, exc_tb)
@@ -225,6 +229,16 @@ class DemoDisplay:
             lines.append(Text(
                 "In production: no hard stop existed. Alert fires AFTER spend.",
                 style="red bold",
+            ))
+        elif "BUDGET_EXCEEDED" in s.stop_reason:
+            lines.append(Text(
+                f"Cycles stopped the agent BEFORE call {s.calls + 1} could proceed.",
+                style="green bold",
+            ))
+        elif "error" in s.stop_reason.lower():
+            lines.append(Text(
+                "Agent stopped due to an error — see message above.",
+                style="yellow bold",
             ))
         else:
             lines.append(Text(
