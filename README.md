@@ -39,6 +39,20 @@ Stop the stack when done:
 ./teardown.sh
 ```
 
+### Windows (WSL)
+
+The demo runs on Windows 11 via WSL. Install [Docker Desktop for Windows](https://docs.docker.com/get-docker/) with the WSL 2 backend enabled (the default), then inside your WSL terminal:
+
+```bash
+sudo apt update && sudo apt install -y python3 python3-pip curl
+git clone https://github.com/runcycles/cycles-runaway-demo
+cd cycles-runaway-demo
+python3 -m pip install -r agent/requirements.txt
+./demo.sh
+```
+
+Docker Desktop shares the daemon between Windows and WSL automatically — no extra configuration needed.
+
 ### First run notes
 
 The first run pulls three Docker images (~200MB total). You'll see Docker's pull progress. Subsequent runs start in seconds.
