@@ -12,8 +12,6 @@ from __future__ import annotations
 import os
 import signal
 import sys
-import time
-
 from runcycles import BudgetExceededError, CyclesClient, CyclesConfig, cycles, set_default_client
 from runcycles.exceptions import CyclesError
 
