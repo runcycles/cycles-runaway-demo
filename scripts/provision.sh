@@ -41,18 +41,37 @@ if [ -z "$API_KEY" ]; then
 fi
 echo "  API key: created" >&2
 
-# 3. Create budget ($1.00 = 100,000,000 microcents) — ignore 409
-HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" -X POST "$ADMIN_URL/budgets" \
-  -H "Content-Type: application/json" \
-  -H "X-Cycles-API-Key: $API_KEY" \
-  -d "{\"scope\": \"tenant:$TENANT_ID\", \"unit\": \"USD_MICROCENTS\", \"allocated\": {\"amount\": 100000000, \"unit\": \"USD_MICROCENTS\"}}")
+# 2b. Patch the Redis lookup so the protocol server can find the key.
+#     The admin stores the lookup under a 14-char prefix (e.g. cyc_live_Z9Acz)
+#     but the server resolves with a 9-char prefix (cyc_live_).
+#     Bridge the gap by copying the key_id under the shorter prefix.
+SHORT_PREFIX="${API_KEY:0:9}"                      # e.g. "cyc_live_"
+LONG_PREFIX=$(echo "$API_KEY_RESPONSE" | grep -o '"key_prefix":"[^"]*"' | cut -d'"' -f4)
+KEY_ID=$(echo "$API_KEY_RESPONSE" | grep -o '"key_id":"[^"]*"' | cut -d'"' -f4)
 
-if [ "$HTTP_CODE" != "200" ] && [ "$HTTP_CODE" != "201" ] && [ "$HTTP_CODE" != "409" ]; then
-  echo "" >&2
-  echo "ERROR: Failed to create budget (HTTP $HTTP_CODE)." >&2
-  echo "  Check logs with: docker compose logs cycles-admin" >&2
-  exit 1
+if [ -n "$SHORT_PREFIX" ] && [ -n "$KEY_ID" ]; then
+  docker exec cycles-runaway-demo-redis-1 redis-cli set "apikey:lookup:$SHORT_PREFIX" "$KEY_ID" > /dev/null 2>&1 || true
 fi
+
+# 3. Create budgets at every scope level the server may check ($1.00 = 100,000,000 microcents)
+for SCOPE in \
+  "tenant:$TENANT_ID" \
+  "tenant:$TENANT_ID/workspace:default" \
+  "tenant:$TENANT_ID/workspace:default/app:default" \
+  "tenant:$TENANT_ID/workspace:default/app:default/workflow:default" \
+  "tenant:$TENANT_ID/workspace:default/app:default/workflow:default/agent:support-bot"; do
+  HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" -X POST "$ADMIN_URL/budgets" \
+    -H "Content-Type: application/json" \
+    -H "X-Cycles-API-Key: $API_KEY" \
+    -d "{\"scope\": \"$SCOPE\", \"unit\": \"USD_MICROCENTS\", \"allocated\": {\"amount\": 100000000, \"unit\": \"USD_MICROCENTS\"}}")
+
+  if [ "$HTTP_CODE" != "200" ] && [ "$HTTP_CODE" != "201" ] && [ "$HTTP_CODE" != "409" ]; then
+    echo "" >&2
+    echo "ERROR: Failed to create budget (HTTP $HTTP_CODE, scope=$SCOPE)." >&2
+    echo "  Check logs with: docker compose logs cycles-admin" >&2
+    exit 1
+  fi
+done
 echo "  Budget: \$1.00 (scope: tenant:$TENANT_ID)" >&2
 
 # Print only the API key to stdout
