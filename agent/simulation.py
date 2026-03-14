@@ -12,7 +12,7 @@ import time
 CALL_LATENCY_S: float = 0.05           # 50ms; real LLM: 500ms-2000ms
 QUALITY_THRESHOLD: float = 8.0         # agent accepts score >= 8.0
 MAX_QUALITY_SCORE: float = 6.9         # evaluator never exceeds this (the bug)
-COST_PER_CALL_MICROCENTS: int = 50_000 # $0.0005 per call
+COST_PER_CALL_MICROCENTS: int = 1_000_000 # $0.01 per call
 DEMO_MAX_RUNTIME_S: int = 30           # unguarded auto-stop (remove for unbounded)
 
 

@@ -19,7 +19,7 @@ from runcycles.exceptions import CyclesError
 
 from display import DemoDisplay, DemoState
 from simulation import (
-    COST_PER_CALL_MICROCENTS, QUALITY_THRESHOLD, DEMO_MAX_RUNTIME_S,
+    COST_PER_CALL_MICROCENTS, QUALITY_THRESHOLD,
     draft_response as _draft, evaluate_quality as _eval, refine_response as _refine,
 )
 
@@ -78,10 +78,6 @@ def run() -> None:
 
             iteration = 0
             while not state.stopped:
-                if time.monotonic() - state.start_time > DEMO_MAX_RUNTIME_S:
-                    state.stopped = True
-                    state.stop_reason = f"auto-stop after {DEMO_MAX_RUNTIME_S}s"
-                    break
                 iteration += 1
 
                 score = evaluate_quality(draft)
