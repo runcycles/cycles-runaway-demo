@@ -12,5 +12,5 @@ Set PlaybackSpeed 2.0
 Type "./demo.sh guarded"
 Enter
 
-# In Docker: startup (~20s) + guarded run (~80s at ~800ms/call) + buffer
-Sleep 120s
+# In Docker: startup (~20s) + guarded run (~75s) + buffer (10s)
+Sleep 105s
