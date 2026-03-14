@@ -10,14 +10,16 @@ Three decorators. One except. That is the entire integration.
 from __future__ import annotations
 
 import os
+import signal
 import sys
+import time
 
 from runcycles import BudgetExceededError, CyclesClient, CyclesConfig, cycles, set_default_client
 from runcycles.exceptions import CyclesError
 
 from display import DemoDisplay, DemoState
 from simulation import (
-    COST_PER_CALL_MICROCENTS, QUALITY_THRESHOLD,
+    COST_PER_CALL_MICROCENTS, QUALITY_THRESHOLD, DEMO_MAX_RUNTIME_S,
     draft_response as _draft, evaluate_quality as _eval, refine_response as _refine,
 )
 
@@ -61,34 +63,39 @@ def run() -> None:
     state = DemoState(mode="GUARDED", ticket=f"#4782 — {TICKET[:48]}...")
     exit_error: str | None = None
 
+    def _sigint(sig, frame):
+        state.stopped = True
+        state.stop_reason = "Ctrl+C"
+
+    signal.signal(signal.SIGINT, _sigint)
+
     with DemoDisplay(state) as display:
         try:
+            # Initial draft
             draft = draft_response(TICKET)
-            state.record_call(COST_PER_CALL_MICROCENTS, "draft_response ✓ reserved + committed")
+            state.record_call(COST_PER_CALL_MICROCENTS, "draft_response")
             display.refresh()
 
             iteration = 0
-            while True:
+            while not state.stopped:
+                if time.monotonic() - state.start_time > DEMO_MAX_RUNTIME_S:
+                    state.stopped = True
+                    state.stop_reason = f"auto-stop after {DEMO_MAX_RUNTIME_S}s"
+                    break
                 iteration += 1
 
-                try:
-                    score = evaluate_quality(draft)
-                    state.record_call(COST_PER_CALL_MICROCENTS, f"evaluate_quality → score {score:.1f}", score=score)
-                    display.refresh()
-                except BudgetExceededError:
-                    raise
+                score = evaluate_quality(draft)
+                state.record_call(COST_PER_CALL_MICROCENTS, f"evaluate_quality (iter {iteration})", score=score)
+                display.refresh()
 
                 if score >= QUALITY_THRESHOLD:
                     state.stopped = True
                     state.stop_reason = "quality threshold met"
                     break
 
-                try:
-                    draft = refine_response(draft, score)
-                    state.record_call(COST_PER_CALL_MICROCENTS, "refine_response ✓ reserved + committed")
-                    display.refresh()
-                except BudgetExceededError:
-                    raise
+                draft = refine_response(draft, score)
+                state.record_call(COST_PER_CALL_MICROCENTS, f"refine_response (score was {score:.1f})")
+                display.refresh()
 
         except BudgetExceededError:
             state.stopped = True
