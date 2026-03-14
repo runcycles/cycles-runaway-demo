@@ -12,6 +12,5 @@ Set PlaybackSpeed 2.0
 Type "./demo.sh guarded"
 Enter
 
-# Guarded run: ~2000 calls at 50ms each ≈ 100s real time.
-# At 2x playback that's ~50s of GIF.
-Sleep 110s
+# Stack startup (~15s) + health checks (~7s) + provisioning (~2s) + demo (~30s) + buffer
+Sleep 65s
