@@ -45,6 +45,8 @@ The first run pulls three Docker images (~200MB total). You'll see Docker's pull
 
 ## What you'll see
 
+![RunCycles Demo](demo.gif)
+
 ### Without Cycles
 
 A live terminal display (no scroll flood) shows three panels updating in-place:
