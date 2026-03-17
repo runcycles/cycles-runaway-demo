@@ -167,6 +167,16 @@ Three decorators. One except. That is the entire integration.
 
 Rate limits cap velocity. Observability alerts fire after spend. Provider caps are per-provider. RunCycles stops the spend **BEFORE** the next call is made.
 
+## Next steps
+
+After running the demo, explore how to add Cycles to your own application:
+
+- [What is Cycles?](https://runcycles.io/quickstart/what-is-cycles) — understand the problem and the solution
+- [End-to-End Tutorial](https://runcycles.io/quickstart/end-to-end-tutorial) — zero to a working budget-guarded app in 10 minutes
+- [Choose a First Rollout](https://runcycles.io/quickstart/how-to-choose-a-first-cycles-rollout-tenant-budgets-run-budgets-or-model-call-guardrails) — decide your adoption strategy
+- [Adding Cycles to an Existing App](https://runcycles.io/how-to/adding-cycles-to-an-existing-application) — incremental adoption guide
+- [Full Documentation](https://runcycles.io) — complete docs at runcycles.io
+
 ## Links
 
 - Protocol: https://github.com/runcycles/cycles-protocol
