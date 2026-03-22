@@ -1,4 +1,4 @@
-# VHS tape file for recording the RunCycles guarded-mode demo
+# VHS tape file for recording the Cycles guarded-mode demo
 # https://github.com/charmbracelet/vhs
 
 Output demo.gif
