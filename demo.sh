@@ -9,7 +9,7 @@ if [[ "$MODE" != "unguarded" && "$MODE" != "guarded" && "$MODE" != "both" ]]; th
 fi
 
 echo ""
-echo "⚡ RunCycles — Runaway Agent Demo"
+echo "⚡ Cycles — Runaway Agent Demo"
 echo ""
 
 # ── Preflight checks ─────────────────────────────────────────────────────────

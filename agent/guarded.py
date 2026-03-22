@@ -1,5 +1,5 @@
 """
-Guarded agent — budget enforced by RunCycles.
+Guarded agent — budget enforced by Cycles.
 
 Identical to unguarded.py except:
   1. Each LLM function is wrapped with @cycles

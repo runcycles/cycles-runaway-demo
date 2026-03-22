@@ -1,12 +1,12 @@
 # Cycles Runaway Demo
 
-Shows the failure mode RunCycles prevents — and RunCycles preventing it.
+A runaway agent burns $6 in 30 seconds. Cycles stops it at $1.
 
-Same agent. Same bug. Two modes.
+Same agent. Same bug. Two outcomes.
 
 ## The scenario
 
-A customer support bot drafts a response, evaluates its quality, and refines it in a loop until the quality score exceeds 8.0. The bug: the quality evaluator never returns above 6.9. Without a budget boundary, the agent loops forever — burning tokens with no exit condition. With RunCycles, the server returns `409 BUDGET_EXCEEDED` before the next call can proceed, and the agent stops cleanly.
+A customer support bot drafts a response, evaluates its quality, and refines it in a loop until the quality score exceeds 8.0. The bug: the quality evaluator never returns above 6.9. Without a budget boundary, the agent loops forever — burning tokens with no exit condition. With Cycles, the server returns `409 BUDGET_EXCEEDED` before the next call can proceed, and the agent stops cleanly.
 
 No real LLM is used. All calls are simulated at 50ms latency. The cost math is real.
 
@@ -63,7 +63,7 @@ The first run pulls three Docker images (~200MB total). You'll see Docker's pull
 
 ## What you'll see
 
-![RunCycles Demo](demo.gif)
+![Cycles Runaway Demo](demo.gif)
 
 ### Without Cycles
 
@@ -86,7 +86,7 @@ The same counter, the same loop, the same bug. The display is identical — same
 ### Expected output
 
 ```
-⚡ RunCycles — Runaway Agent Demo
+⚡ Cycles — Runaway Agent Demo
 
 Starting Cycles stack...
 Stack is up.
@@ -165,7 +165,7 @@ Three decorators. One except. That is the entire integration.
 
 ## Why this matters
 
-Rate limits cap velocity. Observability alerts fire after spend. Provider caps are per-provider. RunCycles stops the spend **BEFORE** the next call is made.
+Rate limits cap velocity, not total exposure. Observability alerts fire after the damage. Provider caps are per-provider and per-key. Cycles enforces a hard ceiling **before** the next call is made — across providers, tenants, and agents.
 
 ## Next steps
 
