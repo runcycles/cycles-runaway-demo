@@ -122,7 +122,7 @@ Provisioning tenant and budget...
 │           returned 409                             │
 │ Calls:    100                                      │
 │ Spend:    $1.0000                                  │
-│ Duration: ~68s                                     │
+│ Duration: ~8s                                      │
 │                                                    │
 │ Cycles stopped the agent BEFORE call 101           │
 │ could proceed.                                     │

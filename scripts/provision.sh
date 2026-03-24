@@ -27,7 +27,7 @@ API_KEY_RESPONSE=$(curl -s -X POST "$ADMIN_URL/api-keys" \
   -d "{
     \"tenant_id\": \"$TENANT_ID\",
     \"name\": \"demo-key\",
-    \"permissions\": [\"reservations:create\",\"reservations:commit\",\"reservations:release\",\"reservations:extend\",\"balances:read\"]
+    \"permissions\": [\"reservations:create\",\"reservations:commit\",\"reservations:release\",\"reservations:extend\",\"balances:read\",\"admin:write\"]
   }")
 
 API_KEY=$(echo "$API_KEY_RESPONSE" | grep -o '"key_secret":"[^"]*"' | cut -d'"' -f4)
