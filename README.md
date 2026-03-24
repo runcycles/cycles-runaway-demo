@@ -125,6 +125,8 @@ Stack is up.
 
 Demo complete.
   Swagger UI:   http://localhost:7878/swagger-ui.html
+  Admin UI:     http://localhost:7979/swagger-ui.html
+  Re-run:       ./demo.sh
   Stop stack:   ./teardown.sh
 ```
 
