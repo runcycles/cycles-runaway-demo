@@ -88,8 +88,12 @@ The same counter, the same loop, the same bug. The display is identical — same
 ```
 ⚡ Cycles — Runaway Agent Demo
 
-Starting Cycles stack...
-Stack is up.
+Resetting stack (clean budget state)...
+
+  [Docker compose output]
+
+Waiting for services to be healthy...
+Provisioning tenant and budget...
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   MODE 1: Without Cycles
@@ -99,8 +103,8 @@ Stack is up.
 
 ╭──────────────── Final — UNGUARDED ─────────────────╮
 │ Result:   auto-stop after 30s                      │
-│ Calls:    ~600                                     │
-│ Spend:    ~$6.00                                   │
+│ Calls:    ~595                                     │
+│ Spend:    ~$5.95                                   │
 │ Duration: 30.0s                                    │
 │                                                    │
 │ In production: no hard stop existed.               │
@@ -114,23 +118,26 @@ Stack is up.
   [live panels update in-place until budget hit]
 
 ╭───────────────── Final — GUARDED ──────────────────╮
-│ Result:   BUDGET_EXCEEDED — Cycles returned 409    │
-│ Calls:    ~100                                     │
-│ Spend:    $1.00                                    │
-│ Duration: ~60s                                     │
+│ Result:   BUDGET_EXCEEDED — Cycles server          │
+│           returned 409                             │
+│ Calls:    100                                      │
+│ Spend:    $1.0000                                  │
+│ Duration: ~68s                                     │
 │                                                    │
-│ Cycles stopped the agent BEFORE call 2001          │
+│ Cycles stopped the agent BEFORE call 101           │
 │ could proceed.                                     │
 ╰────────────────────────────────────────────────────╯
 
 Demo complete.
   Swagger UI:   http://localhost:7878/swagger-ui.html
+  Admin UI:     http://localhost:7979/swagger-ui.html
+  Re-run:       ./demo.sh
   Stop stack:   ./teardown.sh
 ```
 
 ## The code change
 
-The diff between `agent/unguarded.py` and `agent/guarded.py` is exactly this:
+The diff between `agent/unguarded.py` and `agent/guarded.py` is:
 
 ```python
 # --- Import the SDK ---
@@ -142,6 +149,9 @@ def _setup():
         base_url=os.environ["CYCLES_BASE_URL"],
         api_key=os.environ["CYCLES_API_KEY"],
         tenant=os.environ["CYCLES_TENANT"],
+        workspace="default",
+        app="default",
+        workflow="default",
         agent="support-bot",
     )
     set_default_client(CyclesClient(config))

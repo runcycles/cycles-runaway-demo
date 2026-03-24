@@ -36,6 +36,9 @@ def _setup():
         base_url=os.environ["CYCLES_BASE_URL"],
         api_key=os.environ["CYCLES_API_KEY"],
         tenant=os.environ["CYCLES_TENANT"],
+        workspace="default",
+        app="default",
+        workflow="default",
         agent="support-bot",
     )
     set_default_client(CyclesClient(config))
