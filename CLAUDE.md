@@ -7,5 +7,10 @@
 
 # Cycles strict rules
 - yaml API specs always the authority
-- always udated AUDIT.md files when making changes to server, admin, client repos
+- always update AUDIT.md files when making changes to server, admin, client repos
 - maintain at least 95% or higher test coverage for all code repos
+
+# Running the Demo
+- Setup: `python3 -m venv .venv && source .venv/bin/activate && pip install -r agent/requirements.txt`
+- Run: `./demo.sh [unguarded|guarded|both]`
+- Requires Docker Compose v2
