@@ -61,6 +61,17 @@ Docker Desktop shares the daemon between Windows and WSL automatically — no ex
 
 The first run pulls three Docker images (~200MB total). You'll see Docker's pull progress. Subsequent runs start in seconds.
 
+### Troubleshooting
+
+**`JedisConnectionException: Failed to create socket` / `UnknownHostException: redis`**
+You started the stack with `docker compose up` directly (instead of `./demo.sh`) on top of a previous run, and the `cycles-server` container ended up on a stale network where the `redis` service no longer exists. Reset and restart:
+
+```bash
+docker compose down -v && docker compose up -d
+```
+
+`./demo.sh` does this automatically before every run, so the script path doesn't hit this.
+
 ## What you'll see
 
 ![Cycles Runaway Demo](demo.gif)
