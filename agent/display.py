@@ -194,7 +194,7 @@ class DemoDisplay:
             lines.append(Text(f"Sim rate:  ${rate_min:.2f}/min → ${rate_hr:.2f}/hr → ${rate_day:.2f}/day"))
             lines.append(Text(""))
             lines.append(Text(
-                "Real LLM (500ms/call): ~$3.60/hr per stuck ticket",
+                "Real LLM (500ms/call): ~$216/hr per stuck ticket",
                 style="dim",
             ))
             lines.append(Text(
@@ -218,7 +218,26 @@ class DemoDisplay:
     def build_summary_panel(unguarded_spend_usd: float, unguarded_calls: int,
                             unguarded_seconds: float, guarded_spend_usd: float,
                             guarded_calls: int) -> Panel:
-        """Two-column green summary card shown at the end of the recording."""
+        """Two-column green summary card shown at the end of the recording.
+
+        Projections use realistic real-LLM economics, not the simulation
+        rate: 500ms/call latency × $0.03/call = $0.06/sec per stuck agent.
+        That's ~$216/hr per stuck agent — believable, not made up.
+        """
+        REAL_LLM_RATE_PER_SEC = 0.06  # $0.03/call ÷ 0.5s/call
+        per_day = REAL_LLM_RATE_PER_SEC * 86400        # $5,184
+        per_week = per_day * 7                          # $36,288
+        per_month = per_day * 30                        # $155,520
+
+        proj_label_w = 11
+        amount_w = 12
+
+        def proj_line(label: str, value: str, style: str) -> Text:
+            return Text(
+                f"{label.ljust(proj_label_w)}{value.rjust(amount_w)}",
+                style=style,
+            )
+
         t = Table.grid(padding=(0, 4), expand=True)
         t.add_column(justify="center", ratio=1)
         t.add_column(justify="center", ratio=1)
@@ -226,23 +245,43 @@ class DemoDisplay:
         left = Group(
             Text("Without Cycles", style="bold red"),
             Text(f"${unguarded_spend_usd:.2f}", style="bold red"),
-            Text(f"in {unguarded_seconds:.0f}s · {unguarded_calls} calls",
+            Text(f"in {unguarded_seconds:.0f}s · {unguarded_calls:,} sim calls",
                  style="dim red"),
+            Text(""),
+            Text("Real LLM, one stuck agent:", style="bold red"),
+            proj_line("per day",   f"${per_day:,.0f}",   "red"),
+            proj_line("per week",  f"${per_week:,.0f}",  "red"),
+            proj_line("per month", f"${per_month:,.0f}", "red"),
             Text(""),
             Text("no hard stop", style="red"),
         )
         right = Group(
             Text("With Cycles", style="bold green"),
             Text(f"${guarded_spend_usd:.2f}", style="bold green"),
-            Text(f"stopped at $1.00 · {guarded_calls} calls",
+            Text(f"stopped at $1.00 · {guarded_calls:,} calls",
                  style="dim green"),
+            Text(""),
+            Text("$1.00 hard cap, regardless:", style="bold green"),
+            proj_line("per day",   "$1.00", "green"),
+            proj_line("per week",  "$1.00", "green"),
+            proj_line("per month", "$1.00", "green"),
             Text(""),
             Text("BUDGET_EXCEEDED", style="green"),
         )
         t.add_row(left, right)
 
-        return Panel(
+        body = Group(
             t,
+            Text(""),
+            Text(
+                "Projections at 500ms/call · $0.03/call (typical mid-tier LLM)",
+                style="dim",
+                justify="center",
+            ),
+        )
+
+        return Panel(
+            body,
             title="[bold green]Same agent. Same bug. Two outcomes.[/bold green]",
             border_style="green",
         )

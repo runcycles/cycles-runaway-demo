@@ -36,7 +36,8 @@ from runcycles import BudgetExceededError
 TICKET = "My invoice for March is showing $847 but my contract says $720."
 UNGUARDED_RUNTIME_S = 12.0
 INTERSTITIAL_HOLD_S = 1.5
-SUMMARY_HOLD_S = 4.0
+BUDGET_EXCEEDED_HOLD_S = 3.5
+SUMMARY_HOLD_S = 5.0
 
 # The live demo (./demo.sh) runs simulation.CALL_LATENCY_S = 50ms, which in
 # 12s burns ~$2.40. For the recorded GIF we drop latency just for the
@@ -170,7 +171,7 @@ def main() -> None:
     )
     guarded = run_guarded(console)
 
-    time.sleep(1.0)
+    time.sleep(BUDGET_EXCEEDED_HOLD_S)
     console.clear()
     summary = DemoDisplay.build_summary_panel(
         unguarded_spend_usd=unguarded.spend_usd,

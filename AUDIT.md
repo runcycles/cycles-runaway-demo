@@ -51,6 +51,28 @@ back to back in ~30 seconds.
   imports `simulation` independently and is unaffected.
 - `INTERSTITIAL_HOLD_S = 1.5s` — 0.5s was too quick for the viewer to
   read "MODE 2: WITH CYCLES — same agent · same bug".
+- `BUDGET_EXCEEDED_HOLD_S = 3.5s` — 1s was too quick to register the
+  "Final — GUARDED" panel before jumping to the summary.
+
+### Summary card projections grounded in real-LLM economics
+The end-card now projects per-day / per-week / per-month at a fixed
+real-LLM rate of `$0.03/call ÷ 500ms/call = $0.06/sec` (≈ $216/hr per
+stuck agent). That gives:
+- per day:   $5,184
+- per week:  $36,288
+- per month: $155,520
+
+These are believable numbers a viewer with LLM-API exposure will
+recognize, not the $74K/day extrapolation that would come from naively
+projecting the simulation's deliberately-sped-up unguarded rate. The
+card includes a footer noting the basis (`500ms/call · $0.03/call,
+typical mid-tier LLM`).
+
+Cross-check: `_panel_projection` in `display.py` previously claimed
+`~$3.60/hr per stuck ticket` next to the math
+`(~$0.03/call × 120 calls/min × 60 min)` — those don't multiply out.
+Corrected to `~$216/hr` so the live demo and the summary card agree.
+README projection bullet (line 85) updated to match.
 
 ### Verification performed
 - `python3 -m pytest agent/tests/` — 16 passed.
