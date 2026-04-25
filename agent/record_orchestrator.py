@@ -16,6 +16,7 @@ from rich.panel import Panel
 from rich.text import Text
 
 from display import DemoDisplay, DemoState
+import simulation
 from simulation import (
     COST_PER_CALL_MICROCENTS, QUALITY_THRESHOLD,
     draft_response as _sim_draft, evaluate_quality as _sim_eval,
@@ -34,8 +35,15 @@ from runcycles import BudgetExceededError
 
 TICKET = "My invoice for March is showing $847 but my contract says $720."
 UNGUARDED_RUNTIME_S = 12.0
-INTERSTITIAL_HOLD_S = 0.5
+INTERSTITIAL_HOLD_S = 1.5
 SUMMARY_HOLD_S = 4.0
+
+# The live demo (./demo.sh) runs simulation.CALL_LATENCY_S = 50ms, which in
+# 12s burns ~$2.40. For the recorded GIF we drop latency just for the
+# unguarded segment so the contrast at the end (~$10 vs $1.00) is dramatic.
+# Guarded runs at the original rate so the BUDGET_EXCEEDED moment lands at
+# 100 calls / ~7s as documented.
+UNGUARDED_RECORDING_LATENCY_S = 0.011
 
 
 def _print_mode_banner(console: Console, line1: str, line2: str | None = None,
@@ -51,39 +59,44 @@ def _print_mode_banner(console: Console, line1: str, line2: str | None = None,
 
 def run_unguarded(console: Console) -> tuple[DemoState, float]:
     state = DemoState(mode="UNGUARDED", ticket=f"#4782 — {TICKET[:48]}...")
-    with DemoDisplay(state) as display:
-        draft = _sim_draft(TICKET)
-        state.record_call(COST_PER_CALL_MICROCENTS, "draft_response")
-        display.refresh()
-
-        iteration = 0
-        while not state.stopped:
-            if state.elapsed > UNGUARDED_RUNTIME_S:
-                state.stopped = True
-                state.stop_reason = f"cut at {UNGUARDED_RUNTIME_S:.0f}s — projection still climbing"
-                break
-            iteration += 1
-
-            score = _sim_eval(draft)
-            state.record_call(
-                COST_PER_CALL_MICROCENTS,
-                f"evaluate_quality (iter {iteration})",
-                score=score,
-            )
+    original_latency = simulation.CALL_LATENCY_S
+    simulation.CALL_LATENCY_S = UNGUARDED_RECORDING_LATENCY_S
+    try:
+        with DemoDisplay(state) as display:
+            draft = _sim_draft(TICKET)
+            state.record_call(COST_PER_CALL_MICROCENTS, "draft_response")
             display.refresh()
 
-            if score >= QUALITY_THRESHOLD:
-                state.stopped = True
-                state.stop_reason = "quality threshold met"
-                break
+            iteration = 0
+            while not state.stopped:
+                if state.elapsed > UNGUARDED_RUNTIME_S:
+                    state.stopped = True
+                    state.stop_reason = f"cut at {UNGUARDED_RUNTIME_S:.0f}s — projection still climbing"
+                    break
+                iteration += 1
 
-            draft = _sim_refine(draft, score)
-            state.record_call(
-                COST_PER_CALL_MICROCENTS,
-                f"refine_response (score was {score:.1f})",
-            )
-            display.refresh()
-        final_elapsed = state.elapsed
+                score = _sim_eval(draft)
+                state.record_call(
+                    COST_PER_CALL_MICROCENTS,
+                    f"evaluate_quality (iter {iteration})",
+                    score=score,
+                )
+                display.refresh()
+
+                if score >= QUALITY_THRESHOLD:
+                    state.stopped = True
+                    state.stop_reason = "quality threshold met"
+                    break
+
+                draft = _sim_refine(draft, score)
+                state.record_call(
+                    COST_PER_CALL_MICROCENTS,
+                    f"refine_response (score was {score:.1f})",
+                )
+                display.refresh()
+            final_elapsed = state.elapsed
+    finally:
+        simulation.CALL_LATENCY_S = original_latency
     return state, final_elapsed
 
 

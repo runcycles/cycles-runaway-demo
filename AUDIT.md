@@ -38,8 +38,19 @@ back to back in ~30 seconds.
 ### Out of scope
 - No changes to `unguarded.py`, `guarded.py`, `simulation.py`, or `demo.sh`.
 - No ffmpeg/gifski post-processing — the orchestrator's natural pacing
-  (~12s unguarded + 0.5s interstitial + ~8s guarded + 4s summary ≈ 25s)
+  (~12s unguarded + 1.5s interstitial + ~7s guarded + 4s summary ≈ 25s)
   fit the brief without speed manipulation.
+
+### Recording-only tweaks (do not affect `./demo.sh`)
+- `record_orchestrator.py` monkey-patches `simulation.CALL_LATENCY_S`
+  from 50ms down to 11ms **just for the unguarded segment** so the agent
+  burns ~$10 of simulated spend in the same 12s window. The patch is
+  reverted before the guarded segment runs (`try/finally` around the
+  unguarded block), so `BUDGET_EXCEEDED` still lands at $1.00 / 100
+  calls / ~7s as documented in the README. The live `./demo.sh` path
+  imports `simulation` independently and is unaffected.
+- `INTERSTITIAL_HOLD_S = 1.5s` — 0.5s was too quick for the viewer to
+  read "MODE 2: WITH CYCLES — same agent · same bug".
 
 ### Verification performed
 - `python3 -m pytest agent/tests/` — 16 passed.

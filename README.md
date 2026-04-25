@@ -76,9 +76,11 @@ docker compose down -v && docker compose up -d
 
 ![Cycles Runaway Demo](demo.gif)
 
-The GIF cuts the runaway short at ~12s so the projection panel is still
-climbing when MODE 2 takes over. The live demo (`./demo.sh`) lets the
-unguarded mode run the full 30s — you'll see ~$6 of spend instead of ~$2.40.
+The GIF squeezes a $10 vs $1 contrast into ~30 seconds: the unguarded
+segment is recorded with simulation latency dropped to 11ms so spend hits
+~$10 in 12s and the daily projection lights up at ~$75K/day. The live
+demo (`./demo.sh`) keeps the documented 50ms latency — you'll see ~$6 of
+unguarded spend over the full 30s instead.
 
 ### Without Cycles
 
