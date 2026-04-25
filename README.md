@@ -76,13 +76,19 @@ docker compose down -v && docker compose up -d
 
 ![Cycles Runaway Demo](demo.gif)
 
+The GIF squeezes a $10 vs $1 contrast into ~30 seconds: the unguarded
+segment is recorded with simulation latency dropped to 11ms so spend hits
+~$10 in 12s and the daily projection lights up at ~$75K/day. The live
+demo (`./demo.sh`) keeps the documented 50ms latency — you'll see ~$6 of
+unguarded spend over the full 30s instead.
+
 ### Without Cycles
 
 A live terminal display (no scroll flood) shows three panels updating in-place:
 
 - **Live Counter** — call count climbing, spend in dollars, current action with quality score
 - **Budget Thresholds** — the $0.10 threshold crossed in red; $0.50 and $1.00 showing "X% to go"
-- **Projection** — extrapolated cost rate: $/min, $/hr, $/day plus a real-LLM estimate (~$3.60/hr per stuck ticket)
+- **Projection** — extrapolated cost rate: $/min, $/hr, $/day plus a real-LLM estimate (~$108/hr per stuck ticket at 1s × $0.03/call, conservative for Claude Opus 4)
 
 After 30 seconds the demo auto-terminates. The final red panel reads:
 > *"In production: no hard stop existed. Alert fires AFTER spend."*

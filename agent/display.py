@@ -194,11 +194,11 @@ class DemoDisplay:
             lines.append(Text(f"Sim rate:  ${rate_min:.2f}/min → ${rate_hr:.2f}/hr → ${rate_day:.2f}/day"))
             lines.append(Text(""))
             lines.append(Text(
-                "Real LLM (500ms/call): ~$3.60/hr per stuck ticket",
+                "Real LLM (1s/call): ~$108/hr per stuck ticket",
                 style="dim",
             ))
             lines.append(Text(
-                "  (~$0.03/call × 120 calls/min × 60 min)",
+                "  (~$0.03/call × 60 calls/min × 60 min)",
                 style="dim",
             ))
             lines.append(Text(""))
@@ -212,6 +212,85 @@ class DemoDisplay:
             Group(*lines),
             title="[bold]Projection[/bold]",
             border_style=style,
+        )
+
+    @staticmethod
+    def build_summary_panel(unguarded_spend_usd: float, unguarded_calls: int,
+                            unguarded_seconds: float, guarded_spend_usd: float,
+                            guarded_calls: int) -> Panel:
+        """Two-column green summary card shown at the end of the recording.
+
+        Projections use defensible real-LLM economics, not the simulation
+        rate. Assumptions:
+          - 1s per call (typical end-to-end for an agent refinement loop;
+            500ms is only time-to-first-token, not full completion)
+          - $0.03 per call — attributed to Claude Opus 4 @ 3K in / 500
+            out tokens. Real Opus 4 pricing ($15/MTok in, $75/MTok out)
+            puts that prompt size at ~$0.083/call, so $0.03 deliberately
+            under-states. The under-statement is the safe direction:
+            real-world burn would be ~3x worse, never better.
+        Per stuck agent: $0.03/sec → $108/hr → $2,592/day → $77,760/month.
+        """
+        REAL_LLM_RATE_PER_SEC = 0.03  # $0.03/call ÷ 1s/call
+        per_day = REAL_LLM_RATE_PER_SEC * 86400        # $2,592
+        per_week = per_day * 7                          # $18,144
+        per_month = per_day * 30                        # $77,760
+
+        proj_label_w = 11
+        amount_w = 12
+
+        def proj_line(label: str, value: str, style: str) -> Text:
+            return Text(
+                f"{label.ljust(proj_label_w)}{value.rjust(amount_w)}",
+                style=style,
+            )
+
+        t = Table.grid(padding=(0, 4), expand=True)
+        t.add_column(justify="center", ratio=1)
+        t.add_column(justify="center", ratio=1)
+
+        left = Group(
+            Text("Without Cycles", style="bold red"),
+            Text(f"${unguarded_spend_usd:.2f}", style="bold red"),
+            Text(f"in {unguarded_seconds:.0f}s · {unguarded_calls:,} sim calls",
+                 style="dim red"),
+            Text(""),
+            Text("Real LLM, one stuck agent:", style="bold red"),
+            proj_line("per day",   f"${per_day:,.0f}",   "red"),
+            proj_line("per week",  f"${per_week:,.0f}",  "red"),
+            proj_line("per month", f"${per_month:,.0f}", "red"),
+            Text(""),
+            Text("no hard stop", style="red"),
+        )
+        right = Group(
+            Text("With Cycles", style="bold green"),
+            Text(f"${guarded_spend_usd:.2f}", style="bold green"),
+            Text(f"stopped at $1.00 · {guarded_calls:,} calls",
+                 style="dim green"),
+            Text(""),
+            Text("$1.00 hard cap, regardless:", style="bold green"),
+            proj_line("per day",   "$1.00", "green"),
+            proj_line("per week",  "$1.00", "green"),
+            proj_line("per month", "$1.00", "green"),
+            Text(""),
+            Text("BUDGET_EXCEEDED", style="green"),
+        )
+        t.add_row(left, right)
+
+        body = Group(
+            t,
+            Text(""),
+            Text(
+                "Projections: 1s/call · $0.03/call · Claude Opus 4 @ 3K in / 500 out tokens",
+                style="dim",
+                justify="center",
+            ),
+        )
+
+        return Panel(
+            body,
+            title="[bold green]Same agent. Same bug. Two outcomes.[/bold green]",
+            border_style="green",
         )
 
     def _build_final_panel(self) -> Panel:
