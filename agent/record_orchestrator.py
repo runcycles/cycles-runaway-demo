@@ -49,7 +49,7 @@ def _print_mode_banner(console: Console, line1: str, line2: str | None = None,
     console.print()
 
 
-def run_unguarded(console: Console) -> DemoState:
+def run_unguarded(console: Console) -> tuple[DemoState, float]:
     state = DemoState(mode="UNGUARDED", ticket=f"#4782 — {TICKET[:48]}...")
     with DemoDisplay(state) as display:
         draft = _sim_draft(TICKET)
@@ -83,7 +83,8 @@ def run_unguarded(console: Console) -> DemoState:
                 f"refine_response (score was {score:.1f})",
             )
             display.refresh()
-    return state
+        final_elapsed = state.elapsed
+    return state, final_elapsed
 
 
 def run_guarded(console: Console) -> DemoState:
@@ -134,7 +135,7 @@ def main() -> None:
     console = Console()
 
     _print_mode_banner(console, "MODE 1: WITHOUT CYCLES", border_style="red")
-    unguarded = run_unguarded(console)
+    unguarded, unguarded_elapsed = run_unguarded(console)
 
     console.clear()
     interstitial = Panel(
@@ -147,6 +148,7 @@ def main() -> None:
     )
     console.print(interstitial, justify="center")
     time.sleep(INTERSTITIAL_HOLD_S)
+    console.clear()
 
     _print_mode_banner(
         console,
@@ -155,11 +157,12 @@ def main() -> None:
     )
     guarded = run_guarded(console)
 
-    console.print()
+    time.sleep(1.0)
+    console.clear()
     summary = DemoDisplay.build_summary_panel(
         unguarded_spend_usd=unguarded.spend_usd,
         unguarded_calls=unguarded.calls,
-        unguarded_seconds=unguarded.elapsed,
+        unguarded_seconds=unguarded_elapsed,
         guarded_spend_usd=guarded.spend_usd,
         guarded_calls=guarded.calls,
     )
