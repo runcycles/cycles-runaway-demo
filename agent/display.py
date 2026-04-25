@@ -222,12 +222,13 @@ class DemoDisplay:
 
         Projections use defensible real-LLM economics, not the simulation
         rate. Assumptions:
-          - 1s per call (typical end-to-end for a Sonnet-class call with
-            a few hundred output tokens; 500ms-only-first-token would
-            understate the cost)
-          - $0.03 per call (Claude Sonnet @ ~3K input + ~500 output
-            tokens; conservative middle of the range — Opus would be
-            $0.05-$0.10)
+          - 1s per call (typical end-to-end for an agent refinement loop;
+            500ms is only time-to-first-token, not full completion)
+          - $0.03 per call — attributed to Claude Opus 4 @ 3K in / 500
+            out tokens. Real Opus 4 pricing ($15/MTok in, $75/MTok out)
+            puts that prompt size at ~$0.083/call, so $0.03 deliberately
+            under-states. The under-statement is the safe direction:
+            real-world burn would be ~3x worse, never better.
         Per stuck agent: $0.03/sec → $108/hr → $2,592/day → $77,760/month.
         """
         REAL_LLM_RATE_PER_SEC = 0.03  # $0.03/call ÷ 1s/call
@@ -280,7 +281,7 @@ class DemoDisplay:
             t,
             Text(""),
             Text(
-                "Projections: 1s/call · $0.03/call · Claude Sonnet @ 3K in / 500 out tokens",
+                "Projections: 1s/call · $0.03/call · Claude Opus 4 @ 3K in / 500 out tokens",
                 style="dim",
                 justify="center",
             ),

@@ -61,13 +61,19 @@ rate. Assumptions:
 - 1 second per call (typical end-to-end for a Sonnet-class call with
   a few hundred output tokens — 500ms is only realistic if you
   count time-to-first-token, not full completion)
-- $0.03 per call (Claude Sonnet at ~3K input + ~500 output tokens;
-  conservative middle of the range — Opus would be $0.05–$0.10)
+- $0.03 per call — attributed to Claude Opus 4 @ 3K in / 500 out
+  tokens. The actual Opus 4 math at $15/MTok in + $75/MTok out is
+  ~$0.083/call, so the $0.03 figure deliberately under-states (real
+  burn would be ~3x worse). Earlier draft attributed to Sonnet, but
+  Sonnet at 3K/500 is ~$0.017/call — pedantic readers checking the
+  Anthropic pricing page would find a 50% over-statement and that
+  becomes the top reply. Opus attribution flips the direction so any
+  pricing-page check reveals an under-statement instead.
 
 Per stuck agent: `$0.03/sec → $108/hr → $2,592/day → $18,144/week →
-$77,760/month`. Anyone with an LLM-API account can punch these into a
-calculator and confirm. Footer: `Projections: 1s/call · $0.03/call ·
-Claude Sonnet @ 3K in / 500 out tokens`.
+$77,760/month`. Anyone with an LLM-API account can verify the $0.03
+under-states Opus 4 reality. Footer: `Projections: 1s/call · $0.03/call ·
+Claude Opus 4 @ 3K in / 500 out tokens`.
 
 Cross-check: `_panel_projection` in `display.py` previously claimed
 `~$3.60/hr per stuck ticket` next to the math
