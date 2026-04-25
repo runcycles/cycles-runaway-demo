@@ -55,24 +55,32 @@ back to back in ~30 seconds.
   "Final — GUARDED" panel before jumping to the summary.
 
 ### Summary card projections grounded in real-LLM economics
-The end-card now projects per-day / per-week / per-month at a fixed
-real-LLM rate of `$0.03/call ÷ 500ms/call = $0.06/sec` (≈ $216/hr per
-stuck agent). That gives:
-- per day:   $5,184
-- per week:  $36,288
-- per month: $155,520
+The end-card projects per-day / per-week / per-month at a defensible
+real-LLM rate, not the simulation's deliberately-sped-up unguarded
+rate. Assumptions:
+- 1 second per call (typical end-to-end for a Sonnet-class call with
+  a few hundred output tokens — 500ms is only realistic if you
+  count time-to-first-token, not full completion)
+- $0.03 per call (Claude Sonnet at ~3K input + ~500 output tokens;
+  conservative middle of the range — Opus would be $0.05–$0.10)
 
-These are believable numbers a viewer with LLM-API exposure will
-recognize, not the $74K/day extrapolation that would come from naively
-projecting the simulation's deliberately-sped-up unguarded rate. The
-card includes a footer noting the basis (`500ms/call · $0.03/call,
-typical mid-tier LLM`).
+Per stuck agent: `$0.03/sec → $108/hr → $2,592/day → $18,144/week →
+$77,760/month`. Anyone with an LLM-API account can punch these into a
+calculator and confirm. Footer: `Projections: 1s/call · $0.03/call ·
+Claude Sonnet @ 3K in / 500 out tokens`.
 
 Cross-check: `_panel_projection` in `display.py` previously claimed
 `~$3.60/hr per stuck ticket` next to the math
 `(~$0.03/call × 120 calls/min × 60 min)` — those don't multiply out.
-Corrected to `~$216/hr` so the live demo and the summary card agree.
-README projection bullet (line 85) updated to match.
+Corrected to `~$108/hr` (1s/call) so the live demo and the summary
+card agree. README projection bullet updated to match.
+
+Trade-off: an earlier draft used 500ms/call → $216/hr → $5,184/day →
+$155,520/month for maximum visceral impact. The 500ms claim was the
+weakest link credibility-wise (real LLM completions for a refinement
+loop are usually 1–3s end-to-end), so we walked it back to 1s/call
+even though the projections halve. $77K/month per stuck agent is still
+an "I want it now" number for any production team.
 
 ### Verification performed
 - `python3 -m pytest agent/tests/` — 16 passed.

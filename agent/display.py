@@ -194,11 +194,11 @@ class DemoDisplay:
             lines.append(Text(f"Sim rate:  ${rate_min:.2f}/min → ${rate_hr:.2f}/hr → ${rate_day:.2f}/day"))
             lines.append(Text(""))
             lines.append(Text(
-                "Real LLM (500ms/call): ~$216/hr per stuck ticket",
+                "Real LLM (1s/call): ~$108/hr per stuck ticket",
                 style="dim",
             ))
             lines.append(Text(
-                "  (~$0.03/call × 120 calls/min × 60 min)",
+                "  (~$0.03/call × 60 calls/min × 60 min)",
                 style="dim",
             ))
             lines.append(Text(""))
@@ -220,14 +220,20 @@ class DemoDisplay:
                             guarded_calls: int) -> Panel:
         """Two-column green summary card shown at the end of the recording.
 
-        Projections use realistic real-LLM economics, not the simulation
-        rate: 500ms/call latency × $0.03/call = $0.06/sec per stuck agent.
-        That's ~$216/hr per stuck agent — believable, not made up.
+        Projections use defensible real-LLM economics, not the simulation
+        rate. Assumptions:
+          - 1s per call (typical end-to-end for a Sonnet-class call with
+            a few hundred output tokens; 500ms-only-first-token would
+            understate the cost)
+          - $0.03 per call (Claude Sonnet @ ~3K input + ~500 output
+            tokens; conservative middle of the range — Opus would be
+            $0.05-$0.10)
+        Per stuck agent: $0.03/sec → $108/hr → $2,592/day → $77,760/month.
         """
-        REAL_LLM_RATE_PER_SEC = 0.06  # $0.03/call ÷ 0.5s/call
-        per_day = REAL_LLM_RATE_PER_SEC * 86400        # $5,184
-        per_week = per_day * 7                          # $36,288
-        per_month = per_day * 30                        # $155,520
+        REAL_LLM_RATE_PER_SEC = 0.03  # $0.03/call ÷ 1s/call
+        per_day = REAL_LLM_RATE_PER_SEC * 86400        # $2,592
+        per_week = per_day * 7                          # $18,144
+        per_month = per_day * 30                        # $77,760
 
         proj_label_w = 11
         amount_w = 12
@@ -274,7 +280,7 @@ class DemoDisplay:
             t,
             Text(""),
             Text(
-                "Projections at 500ms/call · $0.03/call (typical mid-tier LLM)",
+                "Projections: 1s/call · $0.03/call · Claude Sonnet @ 3K in / 500 out tokens",
                 style="dim",
                 justify="center",
             ),

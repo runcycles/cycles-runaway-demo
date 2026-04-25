@@ -88,7 +88,7 @@ A live terminal display (no scroll flood) shows three panels updating in-place:
 
 - **Live Counter** — call count climbing, spend in dollars, current action with quality score
 - **Budget Thresholds** — the $0.10 threshold crossed in red; $0.50 and $1.00 showing "X% to go"
-- **Projection** — extrapolated cost rate: $/min, $/hr, $/day plus a real-LLM estimate (~$216/hr per stuck ticket at 500ms × $0.03/call)
+- **Projection** — extrapolated cost rate: $/min, $/hr, $/day plus a real-LLM estimate (~$108/hr per stuck ticket at 1s × $0.03/call, Claude Sonnet)
 
 After 30 seconds the demo auto-terminates. The final red panel reads:
 > *"In production: no hard stop existed. Alert fires AFTER spend."*
