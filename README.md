@@ -76,6 +76,10 @@ docker compose down -v && docker compose up -d
 
 ![Cycles Runaway Demo](demo.gif)
 
+The GIF cuts the runaway short at ~12s so the projection panel is still
+climbing when MODE 2 takes over. The live demo (`./demo.sh`) lets the
+unguarded mode run the full 30s — you'll see ~$6 of spend instead of ~$2.40.
+
 ### Without Cycles
 
 A live terminal display (no scroll flood) shows three panels updating in-place:

@@ -214,6 +214,39 @@ class DemoDisplay:
             border_style=style,
         )
 
+    @staticmethod
+    def build_summary_panel(unguarded_spend_usd: float, unguarded_calls: int,
+                            unguarded_seconds: float, guarded_spend_usd: float,
+                            guarded_calls: int) -> Panel:
+        """Two-column green summary card shown at the end of the recording."""
+        t = Table.grid(padding=(0, 4), expand=True)
+        t.add_column(justify="center", ratio=1)
+        t.add_column(justify="center", ratio=1)
+
+        left = Group(
+            Text("Without Cycles", style="bold red"),
+            Text(f"${unguarded_spend_usd:.2f}", style="bold red"),
+            Text(f"in {unguarded_seconds:.0f}s · {unguarded_calls} calls",
+                 style="dim red"),
+            Text(""),
+            Text("no hard stop", style="red"),
+        )
+        right = Group(
+            Text("With Cycles", style="bold green"),
+            Text(f"${guarded_spend_usd:.2f}", style="bold green"),
+            Text(f"stopped at $1.00 · {guarded_calls} calls",
+                 style="dim green"),
+            Text(""),
+            Text("BUDGET_EXCEEDED", style="green"),
+        )
+        t.add_row(left, right)
+
+        return Panel(
+            t,
+            title="[bold green]Same agent. Same bug. Two outcomes.[/bold green]",
+            border_style="green",
+        )
+
     def _build_final_panel(self) -> Panel:
         s = self.state
         style = self._mode_style()
