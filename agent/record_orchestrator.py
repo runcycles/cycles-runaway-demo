@@ -16,7 +16,6 @@ from rich.panel import Panel
 from rich.text import Text
 
 from display import DemoDisplay, DemoState
-import simulation
 from simulation import (
     COST_PER_CALL_MICROCENTS, QUALITY_THRESHOLD,
     draft_response as _sim_draft, evaluate_quality as _sim_eval,
