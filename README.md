@@ -78,9 +78,24 @@ docker compose down -v && docker compose up -d
 
 The GIF squeezes a $10 vs $1 contrast into ~30 seconds: the unguarded
 segment is recorded with simulation latency dropped to 11ms so spend hits
-~$10 in 12s and the daily projection lights up at ~$75K/day. The live
-demo (`./demo.sh`) keeps the documented 50ms latency — you'll see ~$6 of
-unguarded spend over the full 30s instead.
+~$10 in 12s. The end card projects per-day / per-week / per-month at
+real-LLM economics ($0.03/call · 1s/call, conservative for Claude Opus
+4): **$2,592/day · $18,144/week · $77,760/month per stuck agent**, vs
+**$1.00 / $1.00 / $1.00** with Cycles. The live demo (`./demo.sh`) keeps
+the documented 50ms latency — you'll see ~$6 of unguarded spend over
+the full 30s instead.
+
+For homepage embedding, also available as `demo.mp4` (434K, H.264) and
+`demo.webm` (634K, VP9) — both ~4× smaller than the GIF and autoplay
+inline:
+
+```html
+<video autoplay loop muted playsinline>
+  <source src="demo.webm" type="video/webm">
+  <source src="demo.mp4" type="video/mp4">
+  <img src="demo.gif" alt="Cycles Runaway Demo">
+</video>
+```
 
 ### Without Cycles
 

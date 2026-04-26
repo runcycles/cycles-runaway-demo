@@ -48,3 +48,29 @@ echo ""
 echo "Recording demo.tape → demo.gif ..."
 vhs demo.tape
 echo "Done — demo.gif created."
+
+# ── Transcode for homepage embedding ─────────────────────────────────────────
+
+if command -v ffmpeg &> /dev/null; then
+    echo ""
+    echo "Transcoding demo.gif → demo.mp4 (H.264) ..."
+    ffmpeg -y -loglevel error \
+        -i demo.gif \
+        -movflags +faststart -pix_fmt yuv420p \
+        -c:v libx264 -preset slow -crf 22 \
+        -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" \
+        demo.mp4
+    echo "Transcoding demo.gif → demo.webm (VP9) ..."
+    ffmpeg -y -loglevel error \
+        -i demo.gif \
+        -c:v libvpx-vp9 -b:v 0 -crf 32 -row-mt 1 -pix_fmt yuv420p -an \
+        demo.webm
+    echo ""
+    ls -lh demo.gif demo.mp4 demo.webm
+else
+    echo ""
+    echo "WARNING: ffmpeg not found — skipping demo.mp4 / demo.webm."
+    echo "  Install ffmpeg to regenerate the homepage video assets:"
+    echo "    macOS: brew install ffmpeg"
+    echo "    Linux: sudo apt install ffmpeg"
+fi
