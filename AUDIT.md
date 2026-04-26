@@ -37,9 +37,29 @@ back to back in ~30 seconds.
 
 ### Out of scope
 - No changes to `unguarded.py`, `guarded.py`, `simulation.py`, or `demo.sh`.
-- No ffmpeg/gifski post-processing — the orchestrator's natural pacing
+- No ffmpeg speed manipulation — the orchestrator's natural pacing
   (~12s unguarded + 1.5s interstitial + ~7s guarded + 4s summary ≈ 25s)
-  fit the brief without speed manipulation.
+  fit the brief without setpts trickery. ffmpeg is now used for
+  transcode-only (GIF → MP4/WebM, no frame manipulation).
+
+### Homepage video assets (`demo.mp4`, `demo.webm`)
+`record.sh` now transcodes the GIF to two web-friendly formats after
+recording, so the homepage can use a `<video>` tag instead of the GIF:
+- `demo.mp4` (H.264, CRF 22, faststart) — 434K, ~4.4× smaller than the
+  GIF. Universal browser support including iOS Safari.
+- `demo.webm` (VP9, CRF 32) — 634K, ~3× smaller than the GIF. Better
+  compression on modern browsers; preferred when both are listed.
+
+Recommended embed (README has the snippet):
+```html
+<video autoplay loop muted playsinline>
+  <source src="demo.webm" type="video/webm">
+  <source src="demo.mp4" type="video/mp4">
+  <img src="demo.gif" alt="Cycles Runaway Demo">
+</video>
+```
+The GIF stays as the README markdown embed (works on PyPI, npm, raw
+markdown viewers); the videos are for the homepage HTML.
 
 ### Recording-only tweaks (do not affect `./demo.sh`)
 - `record_orchestrator.py` monkey-patches `simulation.CALL_LATENCY_S`
