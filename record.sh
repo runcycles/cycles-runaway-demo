@@ -65,8 +65,15 @@ if command -v ffmpeg &> /dev/null; then
         -i demo.gif \
         -c:v libvpx-vp9 -b:v 0 -crf 32 -row-mt 1 -pix_fmt yuv420p -an \
         demo.webm
+    echo "Extracting poster frame → demo-runaway-poster.png ..."
+    # Last-frame summary card, captured well into the SUMMARY_HOLD_S window
+    # (5s hold, sampled at 29s of a ~33s clip → squarely in the middle).
+    ffmpeg -y -loglevel error \
+        -ss 29 -i demo.mp4 \
+        -vframes 1 \
+        demo-runaway-poster.png
     echo ""
-    ls -lh demo.gif demo.mp4 demo.webm
+    ls -lh demo.gif demo.mp4 demo.webm demo-runaway-poster.png
 else
     echo ""
     echo "WARNING: ffmpeg not found — skipping demo.mp4 / demo.webm."

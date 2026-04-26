@@ -90,12 +90,17 @@ For homepage embedding, also available as `demo.mp4` (434K, H.264) and
 inline:
 
 ```html
-<video autoplay loop muted playsinline>
+<video autoplay loop muted playsinline poster="demo-runaway-poster.png">
   <source src="demo.webm" type="video/webm">
   <source src="demo.mp4" type="video/mp4">
   <img src="demo.gif" alt="Cycles Runaway Demo">
 </video>
 ```
+
+`demo-runaway-poster.png` (116K, 1000×600) is the last-frame summary
+card — used as the `poster` attribute so autoplay-blocked browsers,
+slow-network first paint, and social/SEO link previews all show the
+visceral $/day vs $1.00 contrast even before the video plays.
 
 ### Without Cycles
 
