@@ -42,24 +42,32 @@ back to back in ~30 seconds.
   fit the brief without setpts trickery. ffmpeg is now used for
   transcode-only (GIF → MP4/WebM, no frame manipulation).
 
-### Homepage video assets (`demo.mp4`, `demo.webm`)
+### Homepage video assets (`demo.mp4`, `demo.webm`, `demo-runaway-poster.png`)
 `record.sh` now transcodes the GIF to two web-friendly formats after
-recording, so the homepage can use a `<video>` tag instead of the GIF:
+recording and grabs a poster frame, so the homepage can use a `<video>`
+tag instead of the GIF:
 - `demo.mp4` (H.264, CRF 22, faststart) — 434K, ~4.4× smaller than the
   GIF. Universal browser support including iOS Safari.
 - `demo.webm` (VP9, CRF 32) — 634K, ~3× smaller than the GIF. Better
   compression on modern browsers; preferred when both are listed.
+- `demo-runaway-poster.png` — 116K, 1000×600. Last-frame summary card,
+  extracted from `demo.mp4` at the 29s mark (well inside the 5s
+  `SUMMARY_HOLD_S` window). Used as the `<video poster=…>` attribute so
+  autoplay-blocked browsers, slow-network first paint, and social/SEO
+  link previews all show the $X/day vs $1.00 contrast before any video
+  plays. The "spoiled-narrative" cost is negligible — the contrast IS
+  the message, not a payoff to wait for.
 
 Recommended embed (README has the snippet):
 ```html
-<video autoplay loop muted playsinline>
+<video autoplay loop muted playsinline poster="demo-runaway-poster.png">
   <source src="demo.webm" type="video/webm">
   <source src="demo.mp4" type="video/mp4">
   <img src="demo.gif" alt="Cycles Runaway Demo">
 </video>
 ```
 The GIF stays as the README markdown embed (works on PyPI, npm, raw
-markdown viewers); the videos are for the homepage HTML.
+markdown viewers); the videos + poster are for the homepage HTML.
 
 ### Recording-only tweaks (do not affect `./demo.sh`)
 - `record_orchestrator.py` monkey-patches `simulation.CALL_LATENCY_S`
