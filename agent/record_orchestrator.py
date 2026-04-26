@@ -16,6 +16,12 @@ from rich.panel import Panel
 from rich.text import Text
 
 from display import DemoDisplay, DemoState
+# `import simulation` (bare) is needed alongside the `from simulation import`
+# below: we monkey-patch `simulation.CALL_LATENCY_S` for the unguarded
+# segment, which only works through the module reference. The named imports
+# below are evaluated once at import time, so reassigning them here would
+# not change the value the simulation functions actually read.
+import simulation  # noqa: E402,F401  (used for runtime monkey-patch)
 from simulation import (
     COST_PER_CALL_MICROCENTS, QUALITY_THRESHOLD,
     draft_response as _sim_draft, evaluate_quality as _sim_eval,
