@@ -85,9 +85,10 @@ real-LLM economics ($0.03/call · 1s/call, conservative for Claude Opus
 the documented 50ms latency — you'll see ~$6 of unguarded spend over
 the full 30s instead.
 
-For homepage embedding, also available as `demo.mp4` (434K, H.264) and
-`demo.webm` (634K, VP9) — both ~4× smaller than the GIF and autoplay
-inline:
+For homepage embedding, also available as `demo.mp4` (951K, H.264) and
+`demo.webm` (1.4M, VP9). All assets are recorded at 2000×1200 (2× retina
+density) so text stays crisp on HiDPI displays even when the browser
+scales them down to ~1000×600 for layout. Both videos autoplay inline:
 
 ```html
 <video autoplay loop muted playsinline poster="demo-runaway-poster.png">
@@ -97,7 +98,7 @@ inline:
 </video>
 ```
 
-`demo-runaway-poster.png` (116K, 1000×600) is the last-frame summary
+`demo-runaway-poster.png` (303K, 2000×1200) is the last-frame summary
 card — used as the `poster` attribute so autoplay-blocked browsers,
 slow-network first paint, and social/SEO link previews all show the
 visceral $/day vs $1.00 contrast even before the video plays.
