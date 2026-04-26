@@ -5,6 +5,31 @@ that produces them. The live demo behavior (`./demo.sh`) and the agent code
 (`agent/unguarded.py`, `agent/guarded.py`, `agent/simulation.py`) are
 intentionally unchanged by anything below — only the recording pipeline.
 
+## 2026-04-26 — Re-record at 2× resolution for retina/HiDPI clarity
+
+Bumped `demo.tape` from 1000×600 / FontSize 14 to 2000×1200 / FontSize
+28. Character grid stays identical (~71 cols × ~33 rows) so the rich
+panel layouts render unchanged — each glyph just gets 2× more pixels.
+Browsers downscale to 1× for crisp text on standard displays and render
+1:1 on retina/HiDPI displays.
+
+Also added `Set Framerate 12` to the tape: at 2× resolution chromium
+can't sustain VHS's default ~50fps capture loop, and frames get
+dropped while output metadata still claims default fps — making
+playback ~2× too fast (33s of content compressed to 16s playback).
+12fps gives chromium headroom and rich Live panels refresh at 10fps
+internally so it's plenty smooth.
+
+| Asset | Before (1×) | After (2×) | Δ |
+|---|---|---|---|
+| `demo.gif` | 1.9M | 4.2M | 2.2× |
+| `demo.mp4` | 434K | 951K | 2.2× |
+| `demo.webm` | 634K | 1.4M | 2.2× |
+| `demo-runaway-poster.png` | 116K | 303K | 2.6× |
+
+Size increase is sub-linear vs the 4× pixel-count increase — better
+compression efficiency at the higher density.
+
 ## 2026-04-25 — Re-record `demo.gif` to show both modes side by side
 
 Branch: `claude/re-record-demo-gif-y95V6`
@@ -46,11 +71,11 @@ back to back in ~30 seconds.
 `record.sh` now transcodes the GIF to two web-friendly formats after
 recording and grabs a poster frame, so the homepage can use a `<video>`
 tag instead of the GIF:
-- `demo.mp4` (H.264, CRF 22, faststart) — 434K, ~4.4× smaller than the
+- `demo.mp4` (H.264, CRF 22, faststart) — 951K, ~4.4× smaller than the
   GIF. Universal browser support including iOS Safari.
-- `demo.webm` (VP9, CRF 32) — 634K, ~3× smaller than the GIF. Better
+- `demo.webm` (VP9, CRF 32) — 1.4M, ~3× smaller than the GIF. Better
   compression on modern browsers; preferred when both are listed.
-- `demo-runaway-poster.png` — 116K, 1000×600. Last-frame summary card,
+- `demo-runaway-poster.png` — 303K, 2000×1200. Last-frame summary card,
   extracted from `demo.mp4` at the 29s mark (well inside the 5s
   `SUMMARY_HOLD_S` window). Used as the `<video poster=…>` attribute so
   autoplay-blocked browsers, slow-network first paint, and social/SEO
