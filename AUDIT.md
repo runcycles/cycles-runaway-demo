@@ -5,6 +5,14 @@ that produces them. The live demo behavior (`./demo.sh`) and the agent code
 (`agent/unguarded.py`, `agent/guarded.py`, `agent/simulation.py`) are
 intentionally unchanged by anything below — only the recording pipeline.
 
+## 2026-07-26 — CI Python setup maintenance
+
+Dependabot PR #43 updates the three SHA-pinned `actions/setup-python` uses in
+the CI workflow from major 6 to major 7. The removed optional `pip-install`
+input is not used. Demo code, Compose behavior, recorded assets, and runtime
+requirements are unchanged; every repository check passed on the reviewed
+head.
+
 ## 2026-04-26 — Re-record at 2× resolution for retina/HiDPI clarity
 
 Bumped `demo.tape` from 1000×600 / FontSize 14 to 2000×1200 / FontSize
