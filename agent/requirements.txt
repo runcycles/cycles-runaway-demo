@@ -1,2 +1,2 @@
-runcycles>=0.5.2
+runcycles>=0.5.3
 rich>=15.0.0
